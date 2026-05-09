@@ -84,7 +84,7 @@
     }
 
     .intro {
-      max-width: 760px;
+      max-width: 780px;
       margin: 0;
       color: var(--muted);
       font-size: 15px;
@@ -233,6 +233,10 @@
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 10px;
+    }
+
+    .inline.three {
+      grid-template-columns: 1fr 1fr 1fr;
     }
 
     .toggle-row {
@@ -404,10 +408,6 @@
       background: var(--bg);
     }
 
-    .canvas-large canvas {
-      width: min(100%, 640px);
-    }
-
     .pill {
       border: 1px solid rgba(242, 242, 242, 0.12);
       color: var(--muted);
@@ -459,7 +459,8 @@
         padding: 14px;
       }
 
-      .inline {
+      .inline,
+      .inline.three {
         grid-template-columns: 1fr;
       }
 
@@ -488,7 +489,7 @@
       <div class="brand-lockup">
         <div class="eyebrow">VP Thumbnail System</div>
         <h1>Thumbnail post generator.</h1>
-        <p class="intro">Upload thumbnails, choose a template, adjust labels and footer text, then export a clean 1080×1350 PNG for portfolio posts, outreach, carousels, or case studies.</p>
+        <p class="intro">Upload thumbnails, choose a layout, adjust labels and footer text, then export a clean 1080×1350 PNG.</p>
       </div>
       <div class="action-row">
         <button class="btn" id="resetBtn" type="button">Reset</button>
@@ -503,29 +504,51 @@
             <h2>Template</h2>
             <span class="pill">1080 × 1350</span>
           </div>
+
           <div class="form-grid">
             <div class="field">
               <label for="templateSelect">Post type</label>
               <select id="templateSelect">
                 <option value="beforeAfter">Before / After</option>
                 <option value="conceptFinal">Concept / Final</option>
-                <option value="sixGrid">6-box thumbnail pack</option>
+                <option value="abStack">A/B concept</option>
+                <option value="abcStack">A/B/C concept</option>
+                <option value="singleDesign">Single design</option>
+                <option value="sixGrid">6-box design</option>
               </select>
             </div>
+
             <div class="inline" id="labelFieldsTwo">
               <div class="field">
-                <label for="labelOne">Top label</label>
+                <label for="labelOne">First label</label>
                 <input id="labelOne" value="Before" />
               </div>
               <div class="field">
-                <label for="labelTwo">Bottom label</label>
+                <label for="labelTwo">Second label</label>
                 <input id="labelTwo" value="After" />
               </div>
             </div>
+
+            <div class="inline three" id="labelFieldsThree" hidden>
+              <div class="field">
+                <label for="labelA">A label</label>
+                <input id="labelA" value="A" />
+              </div>
+              <div class="field">
+                <label for="labelB">B label</label>
+                <input id="labelB" value="B" />
+              </div>
+              <div class="field">
+                <label for="labelC">C label</label>
+                <input id="labelC" value="C" />
+              </div>
+            </div>
+
             <div class="field" id="gridTitleField" hidden>
               <label for="gridTitle">Grid title</label>
               <input id="gridTitle" value="Thumbnail Direction Pack" />
             </div>
+
             <div class="toggle-row">
               <span>Show red accent line</span>
               <input id="accentToggle" type="checkbox" />
@@ -539,18 +562,20 @@
             <span class="pill" id="slotCountPill">2 slots</span>
           </div>
           <div class="uploads" id="uploads"></div>
-          <p class="hint">Tip: drag images directly onto a slot. The generator uses cover crop, so 16:9 thumbnails will fit cleanly.</p>
+          <p class="hint">Drag images into a slot or use the upload button.</p>
         </div>
 
         <div class="panel-section">
           <div class="section-title">
             <h2>Footer</h2>
           </div>
+
           <div class="form-grid">
             <div class="field">
               <label for="designerName">Designer name</label>
               <input id="designerName" value="Velimir Paleksić" />
             </div>
+
             <div class="inline">
               <div class="field">
                 <label for="yearInput">Year</label>
@@ -561,6 +586,7 @@
                 <input id="siteInput" value="thumbnails.velimirpaleksic.com" />
               </div>
             </div>
+
             <div class="field">
               <label for="footerMode">Second footer line</label>
               <select id="footerMode">
@@ -570,22 +596,26 @@
                 <option value="none">None</option>
               </select>
             </div>
+
             <div class="field" id="customFooterField" hidden>
               <label for="customFooter">Custom footer line</label>
               <input id="customFooter" value="Original thumbnail belongs to the respective creator/channel." />
             </div>
+
             <div class="field">
               <label for="prefixInput">First footer line prefix</label>
               <input id="prefixInput" value="Thumbnail design by" />
             </div>
           </div>
-          <p class="hint">For public redesigns, use the disclaimer. For real client work, switch the second line to your website or remove it.</p>
+
+          <p class="hint">Use the disclaimer for redesign posts. If it is your own work, you can switch the second line to your website or turn it off.</p>
         </div>
 
         <div class="panel-section">
           <div class="section-title">
             <h2>Style</h2>
           </div>
+
           <div class="form-grid">
             <div class="inline">
               <div class="field">
@@ -597,6 +627,7 @@
                 <input id="bgInput" value="#0B0B0B" />
               </div>
             </div>
+
             <div class="inline">
               <div class="field">
                 <label for="textInput">Text</label>
@@ -607,8 +638,9 @@
                 <input id="placeholderInput" value="#343434" />
               </div>
             </div>
+
             <div class="toggle-row">
-              <span>Show placeholder labels</span>
+              <span>Show slot markers</span>
               <input id="placeholderLabelsToggle" type="checkbox" checked />
             </div>
           </div>
@@ -630,7 +662,8 @@
             <button class="btn primary" id="downloadBtn2" type="button">Export PNG</button>
           </div>
         </div>
-        <div class="canvas-wrap" id="canvasWrap">
+
+        <div class="canvas-wrap">
           <canvas id="postCanvas" width="1080" height="1350" aria-label="Generated thumbnail post preview"></canvas>
         </div>
       </section>
@@ -651,8 +684,12 @@
       canvas: document.getElementById('postCanvas'),
       templateSelect: document.getElementById('templateSelect'),
       labelFieldsTwo: document.getElementById('labelFieldsTwo'),
+      labelFieldsThree: document.getElementById('labelFieldsThree'),
       labelOne: document.getElementById('labelOne'),
       labelTwo: document.getElementById('labelTwo'),
+      labelA: document.getElementById('labelA'),
+      labelB: document.getElementById('labelB'),
+      labelC: document.getElementById('labelC'),
       gridTitleField: document.getElementById('gridTitleField'),
       gridTitle: document.getElementById('gridTitle'),
       slotCountPill: document.getElementById('slotCountPill'),
@@ -673,36 +710,48 @@
       downloadBtn: document.getElementById('downloadBtn'),
       downloadBtn2: document.getElementById('downloadBtn2'),
       resetBtn: document.getElementById('resetBtn'),
-      copySettingsBtn: document.getElementById('copySettingsBtn'),
-      canvasWrap: document.getElementById('canvasWrap')
+      copySettingsBtn: document.getElementById('copySettingsBtn')
     };
 
     const ctx = els.canvas.getContext('2d');
 
     const twoSlotLayouts = {
       beforeAfter: {
-        labels: ['Before', 'After'],
+        defaultLabels: ['Before', 'After'],
         slots: [
-          { x: 100, y: 115, w: 880, h: 495, labelY: 40, label: 'Before' },
-          { x: 100, y: 724, w: 880, h: 495, labelY: 649, label: 'After' }
+          { x: 100, y: 115, w: 880, h: 495, labelY: 40 },
+          { x: 100, y: 724, w: 880, h: 495, labelY: 649 }
         ]
       },
       conceptFinal: {
-        labels: ['Concept', 'Final'],
+        defaultLabels: ['Concept', 'Final'],
         slots: [
-          { x: 100, y: 115, w: 880, h: 495, labelY: 40, label: 'Concept' },
-          { x: 100, y: 724, w: 880, h: 495, labelY: 649, label: 'Final' }
+          { x: 100, y: 115, w: 880, h: 495, labelY: 40 },
+          { x: 100, y: 724, w: 880, h: 495, labelY: 649 }
         ]
       }
     };
 
-    const gridSlots = [
-      { x: 0, y: 159, w: 540, h: 304, tag: 'A' },
-      { x: 540, y: 159, w: 540, h: 304, tag: 'B' },
-      { x: 0, y: 523, w: 540, h: 304, tag: 'C' },
-      { x: 540, y: 523, w: 540, h: 304, tag: 'D' },
-      { x: 0, y: 891, w: 540, h: 304, tag: 'E' },
-      { x: 540, y: 891, w: 540, h: 304, tag: 'F' }
+    const abSlots = [
+      { x: 100, y: 95, w: 880, h: 495, tag: 'A' },
+      { x: 100, y: 665, w: 880, h: 495, tag: 'B' }
+    ];
+
+    const abcSlots = [
+      { x: 194, y: 25, w: 692, h: 389, tag: 'A' },
+      { x: 194, y: 435, w: 692, h: 389, tag: 'B' },
+      { x: 194, y: 845, w: 692, h: 389, tag: 'C' }
+    ];
+
+    const singleSlot = { x: 60, y: 285, w: 960, h: 540 };
+
+    const sixGridSlots = [
+      { x: 34, y: 122, w: 492, h: 277, tag: 'A' },
+      { x: 554, y: 122, w: 492, h: 277, tag: 'B' },
+      { x: 34, y: 442, w: 492, h: 277, tag: 'C' },
+      { x: 554, y: 442, w: 492, h: 277, tag: 'D' },
+      { x: 34, y: 762, w: 492, h: 277, tag: 'E' },
+      { x: 554, y: 762, w: 492, h: 277, tag: 'F' }
     ];
 
     function sanitizeHex(value, fallback) {
@@ -721,17 +770,27 @@
       };
     }
 
-    function roundedRect(ctx, x, y, w, h, r) {
+    function withAlpha(hex, alpha) {
+      const value = sanitizeHex(hex, '#F2F2F2').replace('#', '');
+      const r = parseInt(value.slice(0, 2), 16);
+      const g = parseInt(value.slice(2, 4), 16);
+      const b = parseInt(value.slice(4, 6), 16);
+      return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+    }
+
+    function roundedRect(context, x, y, w, h, r) {
       const radius = Math.min(r, w / 2, h / 2);
-      ctx.beginPath();
-      ctx.moveTo(x + radius, y);
-      ctx.lineTo(x + w - radius, y);
-      ctx.quadraticCurveTo(x + w, y, x + w, y + radius);
-      ctx.lineTo(x + w, y + h);
-      ctx.lineTo(x, y + h);
-      ctx.lineTo(x, y + radius);
-      ctx.quadraticCurveTo(x, y, x + radius, y);
-      ctx.closePath();
+      context.beginPath();
+      context.moveTo(x + radius, y);
+      context.lineTo(x + w - radius, y);
+      context.quadraticCurveTo(x + w, y, x + w, y + radius);
+      context.lineTo(x + w, y + h - radius);
+      context.quadraticCurveTo(x + w, y + h, x + w - radius, y + h);
+      context.lineTo(x + radius, y + h);
+      context.quadraticCurveTo(x, y + h, x, y + h - radius);
+      context.lineTo(x, y + radius);
+      context.quadraticCurveTo(x, y, x + radius, y);
+      context.closePath();
     }
 
     function fillRoundedTopRect(x, y, w, h, r, color) {
@@ -768,6 +827,7 @@
       ctx.fillRect(slot.x, slot.y, slot.w, slot.h);
 
       if (!els.placeholderLabelsToggle.checked) return;
+
       ctx.save();
       ctx.globalAlpha = 0.42;
       ctx.fillStyle = colors.text;
@@ -791,20 +851,38 @@
         color = '#0B0B0B',
         italic = false,
         baseline = 'middle',
-        maxWidth = 820,
-        letterSpacing = 0
+        maxWidth = 820
       } = options;
+
       ctx.save();
       ctx.fillStyle = color;
       ctx.textAlign = 'center';
       ctx.textBaseline = baseline;
       ctx.font = `${italic ? 'italic ' : ''}${weight} ${size}px Inter, Arial, sans-serif`;
-      if (letterSpacing === 0 || !ctx.letterSpacing) {
-        ctx.fillText(text, x, y, maxWidth);
-      } else {
-        ctx.letterSpacing = `${letterSpacing}px`;
-        ctx.fillText(text, x, y, maxWidth);
-      }
+      ctx.fillText(text, x, y, maxWidth);
+      ctx.restore();
+    }
+
+    function drawInlineCentered(parts, y, size) {
+      ctx.save();
+
+      const widths = parts.map(part => {
+        ctx.font = `${part.weight || 500} ${size}px Inter, Arial, sans-serif`;
+        return ctx.measureText(part.text).width;
+      });
+
+      const total = widths.reduce((a, b) => a + b, 0);
+      let x = (CANVAS_W - total) / 2;
+      ctx.textBaseline = 'middle';
+      ctx.textAlign = 'left';
+
+      parts.forEach((part, i) => {
+        ctx.font = `${part.weight || 500} ${size}px Inter, Arial, sans-serif`;
+        ctx.fillStyle = part.color;
+        ctx.fillText(part.text, x, y);
+        x += widths[i];
+      });
+
       ctx.restore();
     }
 
@@ -813,13 +891,12 @@
       const prefix = els.prefixInput.value.trim() || 'Thumbnail design by';
       const name = els.designerName.value.trim() || 'Velimir Paleksić';
       const year = els.yearInput.value.trim() || '2026';
-      const mainParts = [
+
+      drawInlineCentered([
         { text: `${prefix} `, color: withAlpha(colors.text, 0.86), weight: 500 },
         { text: name, color: colors.red, weight: 760 },
         { text: ` © ${year}.`, color: withAlpha(colors.text, 0.86), weight: 500 }
-      ];
-
-      drawInlineCentered(mainParts, 1270, 30);
+      ], 1270, 30);
 
       let second = '';
       if (els.footerMode.value === 'disclaimer') second = 'Not affiliated or endorsed.';
@@ -837,38 +914,48 @@
       }
     }
 
-    function drawInlineCentered(parts, y, size) {
-      ctx.save();
-      ctx.font = `500 ${size}px Inter, Arial, sans-serif`;
-      const widths = parts.map(part => {
-        ctx.font = `${part.weight || 500} ${size}px Inter, Arial, sans-serif`;
-        return ctx.measureText(part.text).width;
-      });
-      const total = widths.reduce((a, b) => a + b, 0);
-      let x = (CANVAS_W - total) / 2;
-      ctx.textBaseline = 'middle';
-      ctx.textAlign = 'left';
-      parts.forEach((part, i) => {
-        ctx.font = `${part.weight || 500} ${size}px Inter, Arial, sans-serif`;
-        ctx.fillStyle = part.color;
-        ctx.fillText(part.text, x, y);
-        x += widths[i];
-      });
-      ctx.restore();
+    function drawFooterAccent(width = 684, y = 1219) {
+      if (!els.accentToggle.checked) return;
+      const colors = currentColors();
+      ctx.fillStyle = colors.red;
+      ctx.fillRect((CANVAS_W - width) / 2, y, width, 3);
     }
 
-    function withAlpha(hex, alpha) {
-      const value = sanitizeHex(hex, '#F2F2F2').replace('#', '');
-      const r = parseInt(value.slice(0, 2), 16);
-      const g = parseInt(value.slice(2, 4), 16);
-      const b = parseInt(value.slice(4, 6), 16);
-      return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+    function drawWhiteCornerTab(slot, text) {
+      const colors = currentColors();
+      const x = slot.x;
+      const y = slot.y;
+      const w = 61;
+      const h = 59;
+      const r = 21;
+
+      ctx.save();
+      ctx.fillStyle = colors.whiteBar;
+      ctx.beginPath();
+      ctx.moveTo(x, y);
+      ctx.lineTo(x + w, y);
+      ctx.lineTo(x + w, y + h - r);
+      ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+      ctx.lineTo(x, y + h);
+      ctx.lineTo(x, y);
+      ctx.closePath();
+      ctx.fill();
+
+      ctx.fillStyle = colors.blackText;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.font = '500 45px Inter, Arial, sans-serif';
+      ctx.fillText(text, x + 31, y + 31, 48);
+      ctx.restore();
     }
 
     function drawTwoSlotTemplate(type) {
       const colors = currentColors();
       const layout = twoSlotLayouts[type];
-      const labels = [els.labelOne.value.trim() || layout.labels[0], els.labelTwo.value.trim() || layout.labels[1]];
+      const labels = [
+        els.labelOne.value.trim() || layout.defaultLabels[0],
+        els.labelTwo.value.trim() || layout.defaultLabels[1]
+      ];
 
       ctx.fillStyle = colors.bg;
       ctx.fillRect(0, 0, CANVAS_W, CANVAS_H);
@@ -884,60 +971,120 @@
         drawSlot(slot, index, labels[index]);
       });
 
-      if (els.accentToggle.checked) {
-        ctx.fillStyle = colors.red;
-        ctx.fillRect(100, 1219, 880, 3);
-      }
+      drawFooterAccent(880);
+      drawFooter();
+    }
 
+    function drawABTemplate() {
+      const colors = currentColors();
+      const labels = [
+        els.labelOne.value.trim() || 'A',
+        els.labelTwo.value.trim() || 'B'
+      ];
+
+      ctx.fillStyle = colors.bg;
+      ctx.fillRect(0, 0, CANVAS_W, CANVAS_H);
+
+      abSlots.forEach((slot, index) => {
+        drawSlot(slot, index, labels[index]);
+        if (els.placeholderLabelsToggle.checked) {
+          drawWhiteCornerTab(slot, labels[index]);
+        }
+      });
+
+      drawFooterAccent(684);
+      drawFooter();
+    }
+
+    function drawABCTemplate() {
+      const colors = currentColors();
+      const labels = [
+        els.labelA.value.trim() || 'A',
+        els.labelB.value.trim() || 'B',
+        els.labelC.value.trim() || 'C'
+      ];
+
+      ctx.fillStyle = colors.bg;
+      ctx.fillRect(0, 0, CANVAS_W, CANVAS_H);
+
+      abcSlots.forEach((slot, index) => {
+        drawSlot(slot, index, labels[index]);
+        if (els.placeholderLabelsToggle.checked) {
+          drawWhiteCornerTab(slot, labels[index]);
+        }
+      });
+
+      drawFooterAccent(684);
+      drawFooter();
+    }
+
+    function drawSingleDesignTemplate() {
+      const colors = currentColors();
+
+      ctx.fillStyle = colors.bg;
+      ctx.fillRect(0, 0, CANVAS_W, CANVAS_H);
+
+      drawSlot(singleSlot, 0, 'Single design');
+
+      drawFooterAccent(684, 950);
       drawFooter();
     }
 
     function drawSixGridTemplate() {
       const colors = currentColors();
+
       ctx.fillStyle = colors.bg;
       ctx.fillRect(0, 0, CANVAS_W, CANVAS_H);
 
       const title = els.gridTitle.value.trim();
       if (title) {
-        drawCenteredText(title, CANVAS_W / 2, 90, {
-          size: 38,
+        drawCenteredText(title, CANVAS_W / 2, 72, {
+          size: 34,
           weight: 720,
           color: colors.text,
           maxWidth: 950
         });
       }
 
-      gridSlots.forEach((slot, index) => {
+      sixGridSlots.forEach((slot, index) => {
         drawSlot(slot, index, `Concept ${slot.tag}`);
         if (els.placeholderLabelsToggle.checked) {
-          drawTag(slot, slot.tag);
+          drawWhiteCornerTab(slot, slot.tag);
         }
       });
 
-      if (els.accentToggle.checked) {
-        ctx.fillStyle = colors.red;
-        ctx.fillRect(198, 1219, 684, 3);
-      }
-
+      drawFooterAccent(684);
       drawFooter();
     }
 
-    function drawTag(slot, text) {
-      const colors = currentColors();
-      const x = slot.x + 18;
-      const y = slot.y + 18;
-      ctx.save();
-      ctx.fillStyle = 'rgba(11, 11, 11, 0.72)';
-      roundedRect(ctx, x, y, 62, 38, 19);
-      ctx.fill();
-      ctx.strokeStyle = 'rgba(242, 242, 242, 0.14)';
-      ctx.stroke();
-      ctx.fillStyle = colors.red;
-      ctx.font = '800 18px Inter, Arial, sans-serif';
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillText(text, x + 31, y + 20);
-      ctx.restore();
+    function getSlotCount() {
+      const type = els.templateSelect.value;
+      if (type === 'singleDesign') return 1;
+      if (type === 'abcStack') return 3;
+      if (type === 'sixGrid') return 6;
+      return 2;
+    }
+
+    function getUploadLabel(index) {
+      const type = els.templateSelect.value;
+
+      if (type === 'beforeAfter' || type === 'conceptFinal' || type === 'abStack') {
+        return [els.labelOne.value || 'A', els.labelTwo.value || 'B'][index] || `Slot ${index + 1}`;
+      }
+
+      if (type === 'abcStack') {
+        return [els.labelA.value || 'A', els.labelB.value || 'B', els.labelC.value || 'C'][index] || `Slot ${index + 1}`;
+      }
+
+      if (type === 'singleDesign') {
+        return 'Single design';
+      }
+
+      if (type === 'sixGrid') {
+        return `Concept ${sixGridSlots[index]?.tag || index + 1}`;
+      }
+
+      return `Slot ${index + 1}`;
     }
 
     function render() {
@@ -948,28 +1095,55 @@
         drawTwoSlotTemplate('beforeAfter');
       } else if (state.template === 'conceptFinal') {
         drawTwoSlotTemplate('conceptFinal');
-      } else {
+      } else if (state.template === 'abStack') {
+        drawABTemplate();
+      } else if (state.template === 'abcStack') {
+        drawABCTemplate();
+      } else if (state.template === 'singleDesign') {
+        drawSingleDesignTemplate();
+      } else if (state.template === 'sixGrid') {
         drawSixGridTemplate();
       }
     }
 
     function setTemplateUI() {
       const type = els.templateSelect.value;
-      const twoSlot = type !== 'sixGrid';
-      els.labelFieldsTwo.hidden = !twoSlot;
-      els.gridTitleField.hidden = twoSlot;
-      els.slotCountPill.textContent = twoSlot ? '2 slots' : '6 slots';
+      const twoLabelTemplates = ['beforeAfter', 'conceptFinal', 'abStack'];
+
+      els.labelFieldsTwo.hidden = !twoLabelTemplates.includes(type);
+      els.labelFieldsThree.hidden = type !== 'abcStack';
+      els.gridTitleField.hidden = type !== 'sixGrid';
+      els.slotCountPill.textContent = `${getSlotCount()} slot${getSlotCount() === 1 ? '' : 's'}`;
 
       if (type === 'beforeAfter') {
         els.labelOne.value = 'Before';
         els.labelTwo.value = 'After';
         els.footerMode.value = 'disclaimer';
       }
+
       if (type === 'conceptFinal') {
         els.labelOne.value = 'Concept';
         els.labelTwo.value = 'Final';
         els.footerMode.value = 'disclaimer';
       }
+
+      if (type === 'abStack') {
+        els.labelOne.value = 'A';
+        els.labelTwo.value = 'B';
+        els.footerMode.value = 'disclaimer';
+      }
+
+      if (type === 'abcStack') {
+        els.labelA.value = 'A';
+        els.labelB.value = 'B';
+        els.labelC.value = 'C';
+        els.footerMode.value = 'disclaimer';
+      }
+
+      if (type === 'singleDesign') {
+        els.footerMode.value = 'website';
+      }
+
       if (type === 'sixGrid') {
         els.footerMode.value = 'website';
       }
@@ -979,8 +1153,9 @@
     }
 
     function buildUploadCards() {
-      const count = els.templateSelect.value === 'sixGrid' ? 6 : 2;
+      const count = getSlotCount();
       els.uploads.innerHTML = '';
+
       for (let i = 0; i < count; i++) {
         const card = document.createElement('div');
         card.className = 'upload-card';
@@ -988,11 +1163,14 @@
 
         const preview = document.createElement('div');
         preview.className = 'thumb-preview';
-        preview.innerHTML = state.images[i] ? `<img alt="Selected image ${i + 1}" src="${state.images[i].src}">` : `<span>${i + 1}</span>`;
+        preview.innerHTML = state.images[i]
+          ? `<img alt="Selected image ${i + 1}" src="${state.images[i].src}">`
+          : `<span>${i + 1}</span>`;
 
+        const label = getUploadLabel(i);
         const copy = document.createElement('div');
         copy.className = 'upload-copy';
-        copy.innerHTML = `<span class="upload-title">Slot ${i + 1}</span><span class="upload-meta">${state.fileNames[i]}</span>`;
+        copy.innerHTML = `<span class="upload-title">${label}</span><span class="upload-meta">${state.fileNames[i]}</span>`;
 
         const actions = document.createElement('div');
         actions.className = 'upload-actions';
@@ -1015,12 +1193,14 @@
         input.accept = 'image/*';
 
         choose.addEventListener('click', () => input.click());
+
         clear.addEventListener('click', () => {
           state.images[i] = null;
           state.fileNames[i] = 'No image selected';
           buildUploadCards();
           render();
         });
+
         input.addEventListener('change', event => {
           const file = event.target.files && event.target.files[0];
           if (file) loadFileIntoSlot(file, i);
@@ -1030,12 +1210,18 @@
           event.preventDefault();
           card.classList.add('dragover');
         });
-        card.addEventListener('dragleave', () => card.classList.remove('dragover'));
+
+        card.addEventListener('dragleave', () => {
+          card.classList.remove('dragover');
+        });
+
         card.addEventListener('drop', event => {
           event.preventDefault();
           card.classList.remove('dragover');
           const file = event.dataTransfer.files && event.dataTransfer.files[0];
-          if (file && file.type.startsWith('image/')) loadFileIntoSlot(file, i);
+          if (file && file.type.startsWith('image/')) {
+            loadFileIntoSlot(file, i);
+          }
         });
 
         actions.append(choose, clear, input);
@@ -1071,26 +1257,41 @@
     function resetAll() {
       state.images = Array(6).fill(null);
       state.fileNames = Array(6).fill('No image selected');
+
       els.templateSelect.value = 'beforeAfter';
+      els.labelOne.value = 'Before';
+      els.labelTwo.value = 'After';
+      els.labelA.value = 'A';
+      els.labelB.value = 'B';
+      els.labelC.value = 'C';
+      els.gridTitle.value = 'Thumbnail Direction Pack';
       els.designerName.value = 'Velimir Paleksić';
       els.yearInput.value = '2026';
       els.siteInput.value = 'thumbnails.velimirpaleksic.com';
-      els.prefixInput.value = 'Thumbnail design by';
       els.footerMode.value = 'disclaimer';
+      els.customFooter.value = 'Original thumbnail belongs to the respective creator/channel.';
+      els.prefixInput.value = 'Thumbnail design by';
       els.redInput.value = '#981B1E';
       els.bgInput.value = '#0B0B0B';
       els.textInput.value = '#F2F2F2';
       els.placeholderInput.value = '#343434';
-      els.accentToggle.checked = true;
+      els.accentToggle.checked = false;
       els.placeholderLabelsToggle.checked = true;
+
       setTemplateUI();
     }
 
     async function copySettings() {
       const payload = {
         template: els.templateSelect.value,
-        labels: [els.labelOne.value, els.labelTwo.value],
-        gridTitle: els.gridTitle.value,
+        labels: {
+          first: els.labelOne.value,
+          second: els.labelTwo.value,
+          a: els.labelA.value,
+          b: els.labelB.value,
+          c: els.labelC.value,
+          gridTitle: els.gridTitle.value
+        },
         footer: {
           prefix: els.prefixInput.value,
           designer: els.designerName.value,
@@ -1104,14 +1305,19 @@
           background: els.bgInput.value,
           text: els.textInput.value,
           placeholder: els.placeholderInput.value,
-          accentLine: els.accentToggle.checked
+          accentLine: els.accentToggle.checked,
+          slotMarkers: els.placeholderLabelsToggle.checked
         }
       };
+
       const text = JSON.stringify(payload, null, 2);
+
       try {
         await navigator.clipboard.writeText(text);
         els.copySettingsBtn.textContent = 'Copied';
-        setTimeout(() => els.copySettingsBtn.textContent = 'Copy settings JSON', 1200);
+        setTimeout(() => {
+          els.copySettingsBtn.textContent = 'Copy settings JSON';
+        }, 1200);
       } catch {
         prompt('Copy settings JSON:', text);
       }
@@ -1120,6 +1326,9 @@
     const liveControls = [
       els.labelOne,
       els.labelTwo,
+      els.labelA,
+      els.labelB,
+      els.labelC,
       els.gridTitle,
       els.designerName,
       els.yearInput,
@@ -1136,8 +1345,15 @@
     ];
 
     liveControls.forEach(control => {
-      control.addEventListener('input', render);
-      control.addEventListener('change', render);
+      control.addEventListener('input', () => {
+        buildUploadCards();
+        render();
+      });
+
+      control.addEventListener('change', () => {
+        buildUploadCards();
+        render();
+      });
     });
 
     els.templateSelect.addEventListener('change', setTemplateUI);
