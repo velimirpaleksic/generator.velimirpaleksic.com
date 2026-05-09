@@ -1,0 +1,1153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Thumbnail Post Generator | Velimir Paleksić</title>
+  <style>
+    :root {
+      --bg: #0B0B0B;
+      --panel: #141414;
+      --panel-2: #1B1B1B;
+      --line: rgba(242, 242, 242, 0.12);
+      --text: #F2F2F2;
+      --muted: rgba(242, 242, 242, 0.68);
+      --muted-2: rgba(242, 242, 242, 0.45);
+      --red: #981B1E;
+      --red-2: #7D171A;
+      --placeholder: #343434;
+      --white-bar: #F2F2F2;
+      --radius: 18px;
+      --shadow: 0 24px 80px rgba(0, 0, 0, 0.45);
+      --focus: 0 0 0 3px rgba(152, 27, 30, 0.32);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background:
+        radial-gradient(circle at top left, rgba(152, 27, 30, 0.18), transparent 28rem),
+        linear-gradient(135deg, #080808 0%, #0B0B0B 42%, #111111 100%);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    button,
+    input,
+    select,
+    textarea {
+      font: inherit;
+    }
+
+    button {
+      border: 0;
+      cursor: pointer;
+    }
+
+    .app {
+      width: min(1480px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 28px 0 40px;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 24px;
+      margin-bottom: 24px;
+    }
+
+    .brand-lockup {
+      display: grid;
+      gap: 8px;
+    }
+
+    .eyebrow {
+      color: var(--red);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(28px, 4vw, 46px);
+      line-height: 0.98;
+      letter-spacing: -0.04em;
+      font-weight: 760;
+    }
+
+    .intro {
+      max-width: 760px;
+      margin: 0;
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.55;
+    }
+
+    .action-row {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      min-height: 42px;
+      padding: 0 16px;
+      border-radius: 999px;
+      color: var(--text);
+      background: var(--panel-2);
+      border: 1px solid var(--line);
+      transition: transform 160ms ease, border-color 160ms ease, background 160ms ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+      border-color: rgba(242, 242, 242, 0.24);
+      background: #202020;
+    }
+
+    .btn.primary {
+      background: var(--red);
+      border-color: var(--red);
+    }
+
+    .btn.primary:hover {
+      background: var(--red-2);
+      border-color: var(--red-2);
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(340px, 430px) minmax(0, 1fr);
+      gap: 22px;
+      align-items: start;
+    }
+
+    .panel {
+      background: rgba(20, 20, 20, 0.92);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .controls {
+      position: sticky;
+      top: 18px;
+      max-height: calc(100vh - 36px);
+      overflow: auto;
+    }
+
+    .panel-section {
+      padding: 18px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .panel-section:last-child {
+      border-bottom: 0;
+    }
+
+    .section-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .section-title h2 {
+      margin: 0;
+      font-size: 14px;
+      letter-spacing: -0.01em;
+      font-weight: 780;
+    }
+
+    .hint {
+      margin: 8px 0 0;
+      color: var(--muted-2);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .form-grid {
+      display: grid;
+      gap: 12px;
+    }
+
+    .field {
+      display: grid;
+      gap: 7px;
+    }
+
+    label {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.01em;
+    }
+
+    input,
+    select,
+    textarea {
+      width: 100%;
+      color: var(--text);
+      background: #0F0F0F;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      min-height: 42px;
+      padding: 10px 12px;
+      outline: none;
+      transition: border-color 160ms ease, box-shadow 160ms ease, background 160ms ease;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      border-color: var(--red);
+      box-shadow: var(--focus);
+      background: #111111;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 78px;
+      line-height: 1.45;
+    }
+
+    .inline {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      background: #0F0F0F;
+    }
+
+    .toggle-row span {
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 650;
+    }
+
+    .toggle-row input {
+      width: 18px;
+      height: 18px;
+      min-height: auto;
+      accent-color: var(--red);
+    }
+
+    .uploads {
+      display: grid;
+      gap: 10px;
+    }
+
+    .upload-card {
+      display: grid;
+      grid-template-columns: 74px minmax(0, 1fr) auto;
+      gap: 12px;
+      align-items: center;
+      padding: 10px;
+      border-radius: 14px;
+      border: 1px dashed rgba(242, 242, 242, 0.20);
+      background: #0F0F0F;
+      transition: border-color 160ms ease, background 160ms ease;
+    }
+
+    .upload-card.dragover {
+      border-color: var(--red);
+      background: rgba(152, 27, 30, 0.12);
+    }
+
+    .thumb-preview {
+      width: 74px;
+      aspect-ratio: 16 / 9;
+      border-radius: 8px;
+      background: #2E2E2E;
+      border: 1px solid rgba(242, 242, 242, 0.10);
+      overflow: hidden;
+      display: grid;
+      place-items: center;
+      color: var(--muted-2);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .thumb-preview img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .upload-copy {
+      min-width: 0;
+    }
+
+    .upload-title {
+      display: block;
+      font-size: 13px;
+      font-weight: 760;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .upload-meta {
+      display: block;
+      margin-top: 3px;
+      color: var(--muted-2);
+      font-size: 12px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .upload-actions {
+      display: flex;
+      gap: 6px;
+    }
+
+    .mini-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: #181818;
+      border: 1px solid var(--line);
+      color: var(--text);
+      font-size: 13px;
+      font-weight: 800;
+      transition: background 160ms ease, border-color 160ms ease;
+    }
+
+    .mini-btn:hover {
+      background: #222222;
+      border-color: rgba(242, 242, 242, 0.26);
+    }
+
+    .file-input {
+      display: none;
+    }
+
+    .preview-shell {
+      padding: 18px;
+    }
+
+    .preview-toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+
+    .preview-title {
+      display: grid;
+      gap: 3px;
+    }
+
+    .preview-title strong {
+      font-size: 14px;
+    }
+
+    .preview-title span {
+      color: var(--muted-2);
+      font-size: 12px;
+    }
+
+    .canvas-wrap {
+      width: 100%;
+      display: grid;
+      place-items: center;
+      background:
+        linear-gradient(45deg, rgba(242, 242, 242, 0.04) 25%, transparent 25%),
+        linear-gradient(-45deg, rgba(242, 242, 242, 0.04) 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, rgba(242, 242, 242, 0.04) 75%),
+        linear-gradient(-45deg, transparent 75%, rgba(242, 242, 242, 0.04) 75%);
+      background-size: 28px 28px;
+      background-position: 0 0, 0 14px, 14px -14px, -14px 0;
+      border-radius: 16px;
+      border: 1px solid var(--line);
+      padding: 18px;
+      overflow: auto;
+    }
+
+    canvas {
+      width: min(100%, 540px);
+      height: auto;
+      display: block;
+      border-radius: 10px;
+      box-shadow: 0 18px 60px rgba(0, 0, 0, 0.55);
+      background: var(--bg);
+    }
+
+    .canvas-large canvas {
+      width: min(100%, 640px);
+    }
+
+    .pill {
+      border: 1px solid rgba(242, 242, 242, 0.12);
+      color: var(--muted);
+      background: #101010;
+      border-radius: 999px;
+      padding: 7px 10px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .danger-text {
+      color: rgba(242, 242, 242, 0.58);
+      font-size: 12px;
+      line-height: 1.45;
+      margin: 0;
+    }
+
+    @media (max-width: 1100px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      .controls {
+        position: static;
+        max-height: none;
+      }
+    }
+
+    @media (max-width: 720px) {
+      .app {
+        width: min(100% - 20px, 1480px);
+        padding-top: 18px;
+      }
+
+      .topbar {
+        display: grid;
+      }
+
+      .action-row {
+        justify-content: stretch;
+      }
+
+      .btn {
+        flex: 1;
+      }
+
+      .panel-section,
+      .preview-shell {
+        padding: 14px;
+      }
+
+      .inline {
+        grid-template-columns: 1fr;
+      }
+
+      .upload-card {
+        grid-template-columns: 64px minmax(0, 1fr);
+      }
+
+      .upload-actions {
+        grid-column: 1 / -1;
+      }
+
+      .mini-btn {
+        flex: 1;
+        width: auto;
+      }
+
+      .canvas-wrap {
+        padding: 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header class="topbar">
+      <div class="brand-lockup">
+        <div class="eyebrow">VP Thumbnail System</div>
+        <h1>Thumbnail post generator.</h1>
+        <p class="intro">Upload thumbnails, choose a template, adjust labels and footer text, then export a clean 1080×1350 PNG for portfolio posts, outreach, carousels, or case studies.</p>
+      </div>
+      <div class="action-row">
+        <button class="btn" id="resetBtn" type="button">Reset</button>
+        <button class="btn primary" id="downloadBtn" type="button">Export PNG</button>
+      </div>
+    </header>
+
+    <section class="layout">
+      <aside class="panel controls" aria-label="Generator controls">
+        <div class="panel-section">
+          <div class="section-title">
+            <h2>Template</h2>
+            <span class="pill">1080 × 1350</span>
+          </div>
+          <div class="form-grid">
+            <div class="field">
+              <label for="templateSelect">Post type</label>
+              <select id="templateSelect">
+                <option value="beforeAfter">Before / After</option>
+                <option value="conceptFinal">Concept / Final</option>
+                <option value="sixGrid">6-box thumbnail pack</option>
+              </select>
+            </div>
+            <div class="inline" id="labelFieldsTwo">
+              <div class="field">
+                <label for="labelOne">Top label</label>
+                <input id="labelOne" value="Before" />
+              </div>
+              <div class="field">
+                <label for="labelTwo">Bottom label</label>
+                <input id="labelTwo" value="After" />
+              </div>
+            </div>
+            <div class="field" id="gridTitleField" hidden>
+              <label for="gridTitle">Grid title</label>
+              <input id="gridTitle" value="Thumbnail Direction Pack" />
+            </div>
+            <div class="toggle-row">
+              <span>Show red accent line</span>
+              <input id="accentToggle" type="checkbox" checked />
+            </div>
+          </div>
+        </div>
+
+        <div class="panel-section">
+          <div class="section-title">
+            <h2>Images</h2>
+            <span class="pill" id="slotCountPill">2 slots</span>
+          </div>
+          <div class="uploads" id="uploads"></div>
+          <p class="hint">Tip: drag images directly onto a slot. The generator uses cover crop, so 16:9 thumbnails will fit cleanly.</p>
+        </div>
+
+        <div class="panel-section">
+          <div class="section-title">
+            <h2>Footer</h2>
+          </div>
+          <div class="form-grid">
+            <div class="field">
+              <label for="designerName">Designer name</label>
+              <input id="designerName" value="Velimir Paleksić" />
+            </div>
+            <div class="inline">
+              <div class="field">
+                <label for="yearInput">Year</label>
+                <input id="yearInput" value="2026" />
+              </div>
+              <div class="field">
+                <label for="siteInput">Website</label>
+                <input id="siteInput" value="thumbnails.velimirpaleksic.com" />
+              </div>
+            </div>
+            <div class="field">
+              <label for="footerMode">Second footer line</label>
+              <select id="footerMode">
+                <option value="disclaimer">Not affiliated or endorsed.</option>
+                <option value="website">Website</option>
+                <option value="custom">Custom text</option>
+                <option value="none">None</option>
+              </select>
+            </div>
+            <div class="field" id="customFooterField" hidden>
+              <label for="customFooter">Custom footer line</label>
+              <input id="customFooter" value="Original thumbnail belongs to the respective creator/channel." />
+            </div>
+            <div class="field">
+              <label for="prefixInput">First footer line prefix</label>
+              <input id="prefixInput" value="Thumbnail design by" />
+            </div>
+          </div>
+          <p class="hint">For public redesigns, use the disclaimer. For real client work, switch the second line to your website or remove it.</p>
+        </div>
+
+        <div class="panel-section">
+          <div class="section-title">
+            <h2>Style</h2>
+          </div>
+          <div class="form-grid">
+            <div class="inline">
+              <div class="field">
+                <label for="redInput">Signature red</label>
+                <input id="redInput" value="#981B1E" />
+              </div>
+              <div class="field">
+                <label for="bgInput">Background</label>
+                <input id="bgInput" value="#0B0B0B" />
+              </div>
+            </div>
+            <div class="inline">
+              <div class="field">
+                <label for="textInput">Text</label>
+                <input id="textInput" value="#F2F2F2" />
+              </div>
+              <div class="field">
+                <label for="placeholderInput">Placeholder</label>
+                <input id="placeholderInput" value="#343434" />
+              </div>
+            </div>
+            <div class="toggle-row">
+              <span>Show placeholder labels</span>
+              <input id="placeholderLabelsToggle" type="checkbox" checked />
+            </div>
+          </div>
+        </div>
+
+        <div class="panel-section">
+          <p class="danger-text">This tool creates presentation posts only. It does not make ownership claims over original creator thumbnails or channel assets.</p>
+        </div>
+      </aside>
+
+      <section class="panel preview-shell">
+        <div class="preview-toolbar">
+          <div class="preview-title">
+            <strong>Live preview</strong>
+            <span>Exports exactly as a 1080×1350 PNG.</span>
+          </div>
+          <div class="action-row">
+            <button class="btn" id="copySettingsBtn" type="button">Copy settings JSON</button>
+            <button class="btn primary" id="downloadBtn2" type="button">Export PNG</button>
+          </div>
+        </div>
+        <div class="canvas-wrap" id="canvasWrap">
+          <canvas id="postCanvas" width="1080" height="1350" aria-label="Generated thumbnail post preview"></canvas>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <script>
+    const CANVAS_W = 1080;
+    const CANVAS_H = 1350;
+
+    const state = {
+      template: 'beforeAfter',
+      images: Array(6).fill(null),
+      fileNames: Array(6).fill('No image selected')
+    };
+
+    const els = {
+      canvas: document.getElementById('postCanvas'),
+      templateSelect: document.getElementById('templateSelect'),
+      labelFieldsTwo: document.getElementById('labelFieldsTwo'),
+      labelOne: document.getElementById('labelOne'),
+      labelTwo: document.getElementById('labelTwo'),
+      gridTitleField: document.getElementById('gridTitleField'),
+      gridTitle: document.getElementById('gridTitle'),
+      slotCountPill: document.getElementById('slotCountPill'),
+      uploads: document.getElementById('uploads'),
+      designerName: document.getElementById('designerName'),
+      yearInput: document.getElementById('yearInput'),
+      siteInput: document.getElementById('siteInput'),
+      footerMode: document.getElementById('footerMode'),
+      customFooterField: document.getElementById('customFooterField'),
+      customFooter: document.getElementById('customFooter'),
+      prefixInput: document.getElementById('prefixInput'),
+      redInput: document.getElementById('redInput'),
+      bgInput: document.getElementById('bgInput'),
+      textInput: document.getElementById('textInput'),
+      placeholderInput: document.getElementById('placeholderInput'),
+      accentToggle: document.getElementById('accentToggle'),
+      placeholderLabelsToggle: document.getElementById('placeholderLabelsToggle'),
+      downloadBtn: document.getElementById('downloadBtn'),
+      downloadBtn2: document.getElementById('downloadBtn2'),
+      resetBtn: document.getElementById('resetBtn'),
+      copySettingsBtn: document.getElementById('copySettingsBtn'),
+      canvasWrap: document.getElementById('canvasWrap')
+    };
+
+    const ctx = els.canvas.getContext('2d');
+
+    const twoSlotLayouts = {
+      beforeAfter: {
+        labels: ['Before', 'After'],
+        slots: [
+          { x: 100, y: 115, w: 880, h: 495, labelY: 40, label: 'Before' },
+          { x: 100, y: 724, w: 880, h: 495, labelY: 649, label: 'After' }
+        ]
+      },
+      conceptFinal: {
+        labels: ['Concept', 'Final'],
+        slots: [
+          { x: 100, y: 115, w: 880, h: 495, labelY: 40, label: 'Concept' },
+          { x: 100, y: 724, w: 880, h: 495, labelY: 649, label: 'Final' }
+        ]
+      }
+    };
+
+    const gridSlots = [
+      { x: 0, y: 159, w: 540, h: 304, tag: 'A' },
+      { x: 540, y: 159, w: 540, h: 304, tag: 'B' },
+      { x: 0, y: 523, w: 540, h: 304, tag: 'C' },
+      { x: 540, y: 523, w: 540, h: 304, tag: 'D' },
+      { x: 0, y: 891, w: 540, h: 304, tag: 'E' },
+      { x: 540, y: 891, w: 540, h: 304, tag: 'F' }
+    ];
+
+    function sanitizeHex(value, fallback) {
+      const raw = String(value || '').trim();
+      return /^#[0-9a-fA-F]{6}$/.test(raw) ? raw : fallback;
+    }
+
+    function currentColors() {
+      return {
+        bg: sanitizeHex(els.bgInput.value, '#0B0B0B'),
+        red: sanitizeHex(els.redInput.value, '#981B1E'),
+        text: sanitizeHex(els.textInput.value, '#F2F2F2'),
+        placeholder: sanitizeHex(els.placeholderInput.value, '#343434'),
+        whiteBar: '#F2F2F2',
+        blackText: '#0B0B0B'
+      };
+    }
+
+    function roundedRect(ctx, x, y, w, h, r) {
+      const radius = Math.min(r, w / 2, h / 2);
+      ctx.beginPath();
+      ctx.moveTo(x + radius, y);
+      ctx.lineTo(x + w - radius, y);
+      ctx.quadraticCurveTo(x + w, y, x + w, y + radius);
+      ctx.lineTo(x + w, y + h);
+      ctx.lineTo(x, y + h);
+      ctx.lineTo(x, y + radius);
+      ctx.quadraticCurveTo(x, y, x + radius, y);
+      ctx.closePath();
+    }
+
+    function fillRoundedTopRect(x, y, w, h, r, color) {
+      ctx.save();
+      roundedRect(ctx, x, y, w, h + r, r);
+      ctx.clip();
+      ctx.fillStyle = color;
+      ctx.fillRect(x, y, w, h);
+      ctx.restore();
+    }
+
+    function drawCoverImage(img, slot) {
+      const imgRatio = img.width / img.height;
+      const slotRatio = slot.w / slot.h;
+      let sx = 0;
+      let sy = 0;
+      let sw = img.width;
+      let sh = img.height;
+
+      if (imgRatio > slotRatio) {
+        sw = img.height * slotRatio;
+        sx = (img.width - sw) / 2;
+      } else {
+        sh = img.width / slotRatio;
+        sy = (img.height - sh) / 2;
+      }
+
+      ctx.drawImage(img, sx, sy, sw, sh, slot.x, slot.y, slot.w, slot.h);
+    }
+
+    function drawPlaceholder(slot, index, text) {
+      const colors = currentColors();
+      ctx.fillStyle = colors.placeholder;
+      ctx.fillRect(slot.x, slot.y, slot.w, slot.h);
+
+      if (!els.placeholderLabelsToggle.checked) return;
+      ctx.save();
+      ctx.globalAlpha = 0.42;
+      ctx.fillStyle = colors.text;
+      ctx.font = '700 26px Inter, Arial, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(text || `Image ${index + 1}`, slot.x + slot.w / 2, slot.y + slot.h / 2);
+      ctx.restore();
+    }
+
+    function drawSlot(slot, index, text) {
+      const img = state.images[index];
+      if (img) drawCoverImage(img, slot);
+      else drawPlaceholder(slot, index, text);
+    }
+
+    function drawCenteredText(text, x, y, options = {}) {
+      const {
+        size = 44,
+        weight = 500,
+        color = '#0B0B0B',
+        italic = false,
+        baseline = 'middle',
+        maxWidth = 820,
+        letterSpacing = 0
+      } = options;
+      ctx.save();
+      ctx.fillStyle = color;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = baseline;
+      ctx.font = `${italic ? 'italic ' : ''}${weight} ${size}px Inter, Arial, sans-serif`;
+      if (letterSpacing === 0 || !ctx.letterSpacing) {
+        ctx.fillText(text, x, y, maxWidth);
+      } else {
+        ctx.letterSpacing = `${letterSpacing}px`;
+        ctx.fillText(text, x, y, maxWidth);
+      }
+      ctx.restore();
+    }
+
+    function drawFooter() {
+      const colors = currentColors();
+      const prefix = els.prefixInput.value.trim() || 'Thumbnail design by';
+      const name = els.designerName.value.trim() || 'Velimir Paleksić';
+      const year = els.yearInput.value.trim() || '2026';
+      const mainParts = [
+        { text: `${prefix} `, color: withAlpha(colors.text, 0.86), weight: 500 },
+        { text: name, color: colors.red, weight: 760 },
+        { text: ` © ${year}.`, color: withAlpha(colors.text, 0.86), weight: 500 }
+      ];
+
+      drawInlineCentered(mainParts, 1270, 30);
+
+      let second = '';
+      if (els.footerMode.value === 'disclaimer') second = 'Not affiliated or endorsed.';
+      if (els.footerMode.value === 'website') second = els.siteInput.value.trim();
+      if (els.footerMode.value === 'custom') second = els.customFooter.value.trim();
+
+      if (second) {
+        drawCenteredText(second, CANVAS_W / 2, 1308, {
+          size: 29,
+          weight: 500,
+          italic: true,
+          color: withAlpha(colors.text, 0.86),
+          maxWidth: 970
+        });
+      }
+    }
+
+    function drawInlineCentered(parts, y, size) {
+      ctx.save();
+      ctx.font = `500 ${size}px Inter, Arial, sans-serif`;
+      const widths = parts.map(part => {
+        ctx.font = `${part.weight || 500} ${size}px Inter, Arial, sans-serif`;
+        return ctx.measureText(part.text).width;
+      });
+      const total = widths.reduce((a, b) => a + b, 0);
+      let x = (CANVAS_W - total) / 2;
+      ctx.textBaseline = 'middle';
+      ctx.textAlign = 'left';
+      parts.forEach((part, i) => {
+        ctx.font = `${part.weight || 500} ${size}px Inter, Arial, sans-serif`;
+        ctx.fillStyle = part.color;
+        ctx.fillText(part.text, x, y);
+        x += widths[i];
+      });
+      ctx.restore();
+    }
+
+    function withAlpha(hex, alpha) {
+      const value = sanitizeHex(hex, '#F2F2F2').replace('#', '');
+      const r = parseInt(value.slice(0, 2), 16);
+      const g = parseInt(value.slice(2, 4), 16);
+      const b = parseInt(value.slice(4, 6), 16);
+      return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+    }
+
+    function drawTwoSlotTemplate(type) {
+      const colors = currentColors();
+      const layout = twoSlotLayouts[type];
+      const labels = [els.labelOne.value.trim() || layout.labels[0], els.labelTwo.value.trim() || layout.labels[1]];
+
+      ctx.fillStyle = colors.bg;
+      ctx.fillRect(0, 0, CANVAS_W, CANVAS_H);
+
+      layout.slots.forEach((slot, index) => {
+        fillRoundedTopRect(slot.x, slot.labelY, slot.w, 75, 9, colors.whiteBar);
+        drawCenteredText(labels[index], CANVAS_W / 2, slot.labelY + 38, {
+          size: 42,
+          weight: 500,
+          color: colors.blackText,
+          maxWidth: 780
+        });
+        drawSlot(slot, index, labels[index]);
+      });
+
+      if (els.accentToggle.checked) {
+        ctx.fillStyle = colors.red;
+        ctx.fillRect(100, 1219, 880, 3);
+      }
+
+      drawFooter();
+    }
+
+    function drawSixGridTemplate() {
+      const colors = currentColors();
+      ctx.fillStyle = colors.bg;
+      ctx.fillRect(0, 0, CANVAS_W, CANVAS_H);
+
+      const title = els.gridTitle.value.trim();
+      if (title) {
+        drawCenteredText(title, CANVAS_W / 2, 90, {
+          size: 38,
+          weight: 720,
+          color: colors.text,
+          maxWidth: 950
+        });
+      }
+
+      gridSlots.forEach((slot, index) => {
+        drawSlot(slot, index, `Concept ${slot.tag}`);
+        if (els.placeholderLabelsToggle.checked) {
+          drawTag(slot, slot.tag);
+        }
+      });
+
+      if (els.accentToggle.checked) {
+        ctx.fillStyle = colors.red;
+        ctx.fillRect(198, 1219, 684, 3);
+      }
+
+      drawFooter();
+    }
+
+    function drawTag(slot, text) {
+      const colors = currentColors();
+      const x = slot.x + 18;
+      const y = slot.y + 18;
+      ctx.save();
+      ctx.fillStyle = 'rgba(11, 11, 11, 0.72)';
+      roundedRect(ctx, x, y, 62, 38, 19);
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(242, 242, 242, 0.14)';
+      ctx.stroke();
+      ctx.fillStyle = colors.red;
+      ctx.font = '800 18px Inter, Arial, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(text, x + 31, y + 20);
+      ctx.restore();
+    }
+
+    function render() {
+      state.template = els.templateSelect.value;
+      els.customFooterField.hidden = els.footerMode.value !== 'custom';
+
+      if (state.template === 'beforeAfter') {
+        drawTwoSlotTemplate('beforeAfter');
+      } else if (state.template === 'conceptFinal') {
+        drawTwoSlotTemplate('conceptFinal');
+      } else {
+        drawSixGridTemplate();
+      }
+    }
+
+    function setTemplateUI() {
+      const type = els.templateSelect.value;
+      const twoSlot = type !== 'sixGrid';
+      els.labelFieldsTwo.hidden = !twoSlot;
+      els.gridTitleField.hidden = twoSlot;
+      els.slotCountPill.textContent = twoSlot ? '2 slots' : '6 slots';
+
+      if (type === 'beforeAfter') {
+        els.labelOne.value = 'Before';
+        els.labelTwo.value = 'After';
+        els.footerMode.value = 'disclaimer';
+      }
+      if (type === 'conceptFinal') {
+        els.labelOne.value = 'Concept';
+        els.labelTwo.value = 'Final';
+        els.footerMode.value = 'disclaimer';
+      }
+      if (type === 'sixGrid') {
+        els.footerMode.value = 'website';
+      }
+
+      buildUploadCards();
+      render();
+    }
+
+    function buildUploadCards() {
+      const count = els.templateSelect.value === 'sixGrid' ? 6 : 2;
+      els.uploads.innerHTML = '';
+      for (let i = 0; i < count; i++) {
+        const card = document.createElement('div');
+        card.className = 'upload-card';
+        card.dataset.slot = i;
+
+        const preview = document.createElement('div');
+        preview.className = 'thumb-preview';
+        preview.innerHTML = state.images[i] ? `<img alt="Selected image ${i + 1}" src="${state.images[i].src}">` : `<span>${i + 1}</span>`;
+
+        const copy = document.createElement('div');
+        copy.className = 'upload-copy';
+        copy.innerHTML = `<span class="upload-title">Slot ${i + 1}</span><span class="upload-meta">${state.fileNames[i]}</span>`;
+
+        const actions = document.createElement('div');
+        actions.className = 'upload-actions';
+
+        const choose = document.createElement('button');
+        choose.className = 'mini-btn';
+        choose.type = 'button';
+        choose.title = 'Choose image';
+        choose.textContent = '+';
+
+        const clear = document.createElement('button');
+        clear.className = 'mini-btn';
+        clear.type = 'button';
+        clear.title = 'Clear image';
+        clear.textContent = '×';
+
+        const input = document.createElement('input');
+        input.className = 'file-input';
+        input.type = 'file';
+        input.accept = 'image/*';
+
+        choose.addEventListener('click', () => input.click());
+        clear.addEventListener('click', () => {
+          state.images[i] = null;
+          state.fileNames[i] = 'No image selected';
+          buildUploadCards();
+          render();
+        });
+        input.addEventListener('change', event => {
+          const file = event.target.files && event.target.files[0];
+          if (file) loadFileIntoSlot(file, i);
+        });
+
+        card.addEventListener('dragover', event => {
+          event.preventDefault();
+          card.classList.add('dragover');
+        });
+        card.addEventListener('dragleave', () => card.classList.remove('dragover'));
+        card.addEventListener('drop', event => {
+          event.preventDefault();
+          card.classList.remove('dragover');
+          const file = event.dataTransfer.files && event.dataTransfer.files[0];
+          if (file && file.type.startsWith('image/')) loadFileIntoSlot(file, i);
+        });
+
+        actions.append(choose, clear, input);
+        card.append(preview, copy, actions);
+        els.uploads.append(card);
+      }
+    }
+
+    function loadFileIntoSlot(file, slotIndex) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const img = new Image();
+        img.onload = () => {
+          state.images[slotIndex] = img;
+          state.fileNames[slotIndex] = file.name;
+          buildUploadCards();
+          render();
+        };
+        img.src = reader.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function downloadPNG() {
+      render();
+      const safeTemplate = els.templateSelect.value.replace(/[^a-z0-9]/gi, '-').toLowerCase();
+      const link = document.createElement('a');
+      link.download = `vp-thumbnail-post-${safeTemplate}.png`;
+      link.href = els.canvas.toDataURL('image/png');
+      link.click();
+    }
+
+    function resetAll() {
+      state.images = Array(6).fill(null);
+      state.fileNames = Array(6).fill('No image selected');
+      els.templateSelect.value = 'beforeAfter';
+      els.designerName.value = 'Velimir Paleksić';
+      els.yearInput.value = '2026';
+      els.siteInput.value = 'thumbnails.velimirpaleksic.com';
+      els.prefixInput.value = 'Thumbnail design by';
+      els.footerMode.value = 'disclaimer';
+      els.redInput.value = '#981B1E';
+      els.bgInput.value = '#0B0B0B';
+      els.textInput.value = '#F2F2F2';
+      els.placeholderInput.value = '#343434';
+      els.accentToggle.checked = true;
+      els.placeholderLabelsToggle.checked = true;
+      setTemplateUI();
+    }
+
+    async function copySettings() {
+      const payload = {
+        template: els.templateSelect.value,
+        labels: [els.labelOne.value, els.labelTwo.value],
+        gridTitle: els.gridTitle.value,
+        footer: {
+          prefix: els.prefixInput.value,
+          designer: els.designerName.value,
+          year: els.yearInput.value,
+          site: els.siteInput.value,
+          mode: els.footerMode.value,
+          custom: els.customFooter.value
+        },
+        style: {
+          red: els.redInput.value,
+          background: els.bgInput.value,
+          text: els.textInput.value,
+          placeholder: els.placeholderInput.value,
+          accentLine: els.accentToggle.checked
+        }
+      };
+      const text = JSON.stringify(payload, null, 2);
+      try {
+        await navigator.clipboard.writeText(text);
+        els.copySettingsBtn.textContent = 'Copied';
+        setTimeout(() => els.copySettingsBtn.textContent = 'Copy settings JSON', 1200);
+      } catch {
+        prompt('Copy settings JSON:', text);
+      }
+    }
+
+    const liveControls = [
+      els.labelOne,
+      els.labelTwo,
+      els.gridTitle,
+      els.designerName,
+      els.yearInput,
+      els.siteInput,
+      els.footerMode,
+      els.customFooter,
+      els.prefixInput,
+      els.redInput,
+      els.bgInput,
+      els.textInput,
+      els.placeholderInput,
+      els.accentToggle,
+      els.placeholderLabelsToggle
+    ];
+
+    liveControls.forEach(control => {
+      control.addEventListener('input', render);
+      control.addEventListener('change', render);
+    });
+
+    els.templateSelect.addEventListener('change', setTemplateUI);
+    els.downloadBtn.addEventListener('click', downloadPNG);
+    els.downloadBtn2.addEventListener('click', downloadPNG);
+    els.resetBtn.addEventListener('click', resetAll);
+    els.copySettingsBtn.addEventListener('click', copySettings);
+
+    buildUploadCards();
+    render();
+  </script>
+</body>
+</html>
